@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mylikens">
+	
+	<!-- 좋아요 데이터 추가 (mylike_num 기본값 = 0) -->
+	<insert id="insertMyLike" parameterType="map">
+		insert into mylike values(0, #{ex_num}, #{mem_id},sysdate)
+	</insert>
+	
+	<!-- 좋아요 정보 -->
+	<select id="getMyLike" parameterType="map" resultType="int">
+		select mylike_num from mylike where ex_num = #{ex_num} and mem_id = #{mem_id}		
+	</select>
+	
+	<!-- 좋아요 업데이트 -->
+	<update id="updateMyLike" parameterType="mylike">
+		update mylike set mylike_num = #{mylike_num},mylike_update = sysdate where mem_id = #{mem_id} and ex_num = #{ex_num}
+	</update>
+	
+	<select id="mylikeList" parameterType="String" resultType="exhibition">
+		<![CDATA[
+		select * from (select rownum rnum, exhibition.* from 
+		(select exhibition.* from exhibition, mylike where exhibition.ex_num = mylike.ex_num 
+		and mylike.mylike_num = 1 and mylike.mem_id = #{mem_id} order by mylike_update desc) exhibition)
+		where rnum >= ((#{page}-1) * 10 + 1) and rnum <= (#{page}*10)
+		]]>
+	</select>
+	
+	<select id="mylikeList_recent" parameterType="String" resultType="exhibition">
+		<![CDATA[
+			select ex_num, ex_name, ex_loc, ex_start, ex_end, ex_end_state, ex_ing, ex_con_img, ex_poster from 
+			(select rownum rnum, exhibition.* from 
+			(select exhibition.* from mylike,exhibition 
+				where exhibition.ex_num = mylike.ex_num and mylike.mylike_num = 1 
+				and mylike.mem_id = #{mem_id} order by mylike.mylike_update desc) exhibition)
+			where rnum >= 1 and rnum <= 3
+		]]>
+	</select>
+	
+	<select id="getCount" parameterType="String" resultType="int">
+		select count(*) from mylike where mem_id=#{mem_id}
+	</select>
+</mapper>

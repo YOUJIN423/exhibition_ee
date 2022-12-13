@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="qnans">
+	<select id="getQnaList" parameterType="String" resultType="qna">
+		<![CDATA[
+			select qna_num, mem_id, qna_title, qna_content, qna_date, qna_ref, qna_seq, qna_state 
+			from (select rownum rnum, qna.* from 
+			(select * from qna where mem_id = #{mem_id} order by qna_num desc) qna)
+			where rnum >= ((#{page}-1) * 10 + 1) and rnum <= (#{page} * 10)
+		]]>
+		
+	</select>
+	
+	<select id="getQnaRe" parameterType="int" resultType="String">
+		select DISTINCT r.qna_content from qna q, qna r where r.qna_seq=2 and r.qna_ref=#{qna_num}
+	</select>
+	
+	<insert id="insertQna" parameterType="qna">
+		insert into qna values(SEQ_QNA_NUM.nextval,#{mem_id},#{qna_title},#{qna_content},sysdate,SEQ_QNA_NUM.nextval,1,'n')
+	</insert>
+</mapper>

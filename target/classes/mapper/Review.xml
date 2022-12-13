@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="reviewns">
+	<select id="reviewCheck" parameterType="map" resultType="int">
+		select min(bo_num) from book where ex_num = #{ex_num} and mem_id = #{mem_id} and bo_state = 2
+	</select>
+	
+	<select id="getBook" parameterType="int" resultType="book">
+		select * from book where bo_num = #{bo_num}
+	</select>
+	
+	<insert id="write" parameterType="review">
+		insert into review values(seq_rev_num.nextval,#{mem_id},#{rev_title},#{rev_content},sysdate,#{ex_num},#{bo_num})
+	</insert>
+	
+	<update id="updateBookState" parameterType="int">
+		update book set bo_state = 4 where bo_num = #{bo_num}
+	</update>
+	
+	<select id="getReviewList" parameterType="map" resultType="review">
+		<![CDATA[
+		select * from (select rownum rnum, review.* from 
+		(select * from review where ex_num = #{ex_num} order by rev_num desc) review)
+		where rnum >= ((#{page}-1) * 10 + 1) and rnum <= (#{page} * 10)
+		]]>
+	</select>
+	
+	<update id="updateReview" parameterType="review">
+		update review set rev_title = #{rev_title}, rev_content = #{rev_content} where rev_num = #{rev_num}
+	</update>
+	
+	<delete id="deleteReview" parameterType="int">
+		delete from review where rev_num = #{rev_num}
+	</delete>
+	
+	<select id="getCount" parameterType="int" resultType="int">
+		select count(*) from review where ex_num = #{ex_num}
+	</select>
+	
+	<select id="getCount_id" parameterType="String" resultType="int">
+		select count(*) from review where mem_id = #{mem_id}
+	</select>
+
+	<select id="getReviewList_id" parameterType="map" resultType="review">
+	<![CDATA[
+		select * from (select rownum rnum, review.* from 
+		(select * from review where mem_id = #{mem_id} order by rev_num desc) review)
+		where rnum >= ((#{page}-1) * 10 + 1) and rnum <= (#{page} * 10)
+	]]>
+	</select>
+	
+	<select id="getReviewList_ex" parameterType="map" resultType="exhibition">
+	<![CDATA[
+		select * from (select rownum rnum, exhibition.* from 
+		(select exhibition.* from review, exhibition 
+		where review.ex_num = exhibition.ex_num and review.mem_id=#{mem_id} order by review.rev_num desc) exhibition)
+		where rnum >= ((#{page}-1) * 10 + 1) and rnum <= (#{page} * 10)
+	]]>
+	</select>
+	
+	<select id="getTitle" parameterType="int" resultType="String">
+		select rev_title from review where rev_num = #{rev_num}
+	</select>
+	
+	<select id="getContent" parameterType="int" resultType="String">
+		select rev_content from review where rev_num = #{rev_num}
+	</select>
+	
+	<select id="getBook_rev" parameterType="int" resultType="int">
+		select bo_num from review where rev_num = #{rev_num}
+	</select>
+</mapper>

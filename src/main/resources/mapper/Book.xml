@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bookns">
+
+	<!-- 전시 상세 내용 검색 -->
+	<select id="exhi_detail" parameterType="int" resultType="exhibition">
+		select * from exhibition where ex_num=#{ex_num}
+	</select>
+	
+	<!-- 예약 현황 검색 -->
+	<select id="book_now" parameterType="int" resultType="book_now">
+		select * from book_now where ex_num = #{ex_num}
+	</select>
+	
+	<!-- 예약 정보 저장 -->
+	<insert id="book_insert" parameterType="book">
+		insert into book values(seq_bo_num.nextval, #{ex_num}, seq_pay_num.nextval, 
+		to_date(#{bo_date},'YYYY. MM. DD.'), #{bo_time}, #{bo_count}, 1, #{bo_re_num}, #{bo_price}, #{bo_a_adult},
+		#{bo_a_freshman}, #{bo_a_teen}, #{bo_a_senior}, #{bo_a_free}, #{mem_id})
+	</insert>
+	
+	<!-- 예약 정보 검색 -->
+	<select id="book_select" parameterType="int" resultType="book">
+		select * from book where bo_num = #{bo_num}
+	</select>
+	
+	<!-- 가장 마지막에 등록한 예약 정보 검색 (max 사용) -->
+	<select id="book_select_maxnum" resultType="int">
+		select max(bo_num) from book
+	</select>
+
+
+	<!--*******************************************************************************-->
+
+	<select id="booklist_book" parameterType="map" resultType="book">
+	<![CDATA[
+		select bo_num,ex_num,pay_num,to_char(to_date(bo_date,'yy/MM/dd'),'yy/MM/dd') as bo_date,bo_time,bo_count,
+      bo_state,bo_re_num,bo_price,bo_a_adult,bo_a_freshman,
+      bo_a_teen,bo_a_senior,bo_a_free,mem_id 
+      from (select rownum rnum, book.* from 
+      (select * from book where mem_id=#{mem_id} order by bo_num desc) book)
+      where rnum >= ((#{page}-1) * 10 + 1) and rnum <= (#{page} * 10)
+	]]>
+	</select>
+	
+	<select id="booklist_ex" parameterType="map" resultType="exhibition">
+	<![CDATA[
+		select ex_num,ex_name,ex_loc,
+		ex_start,ex_end,ex_end_state,ex_ing,ex_con_img,ex_poster 
+		from (select rownum rnum, exhibition.* from 
+		(select exhibition.* from book, exhibition 
+		where book.ex_num = exhibition.ex_num 
+		and mem_id=#{mem_id} order by book.bo_num desc) exhibition)
+		where rnum >= ((#{page}-1) * 10 + 1) and rnum <= (#{page} * 10)
+	]]>
+	</select>
+	
+	<select id="booklist_pay" parameterType="map" resultType="pay">
+	<![CDATA[
+		select pay_num,mem_id,ex_num,bo_price,pay_payment,
+		pay_date,pay_canceldate,bo_num 
+		from (select rownum rnum, pay.* from 
+		(select pay.* from book, pay 
+		where book.bo_num = pay.bo_num 
+		and pay.mem_id='test' order by book.bo_num desc) pay)
+		where rnum >= ((#{page}-1) * 10 + 1) and rnum <= (#{page} * 10)
+	]]>
+	</select>
+	
+	<update id="updateBook_state" parameterType="int">
+		update book set bo_state = 3 where bo_num = #{bo_num}
+	</update>
+	
+	<update id="updatePay_cancledate" parameterType="int">
+		update pay set PAY_CANCELDATE=to_char(sysdate,'YY/MM/DD') where bo_num = #{bo_num}
+	</update>
+	
+	<select id="getBook" parameterType="int" resultType="book">
+		select bo_num,ex_num,pay_num,to_char(to_date(bo_date,'yy/MM/dd'),'yy/MM/dd') as bo_date,bo_time,bo_count,
+      bo_state,bo_re_num,bo_price,bo_a_adult,bo_a_freshman,
+      bo_a_teen,bo_a_senior,bo_a_free,mem_id from book where bo_num = #{bo_num}
+	</select>
+	
+	<select id="getPay" parameterType="int" resultType="pay">
+		select * from pay where bo_num = #{bo_num}
+	</select>
+	
+	<select id="getCancleDate" parameterType="int" resultType="Date">
+		select bo_date-1 from book where bo_num=#{bo_num}
+	</select>
+	
+	<select id="booklist_book_recent" parameterType="String" resultType="book">
+		<![CDATA[
+		select bo_num,ex_num,pay_num,to_char(bo_date,'yy/MM/dd') as bo_date,bo_time,bo_count,bo_state,bo_re_num,bo_price,bo_a_adult,bo_a_freshman,bo_a_teen,bo_a_senior,bo_a_free,mem_id 
+		from (select rownum rnum, book.* from 
+		(select * from book where mem_id = #{mem_id} order by bo_num desc) book)
+		where rnum >= 1 and rnum <= 5
+		]]>
+	</select>
+	
+	<select id="booklist_ex_recent" parameterType="String" resultType="exhibition">
+		<![CDATA[
+		select ex_num,ex_name,ex_loc,ex_start,ex_end,ex_end_state,ex_ing,ex_con_img,ex_poster from (select rownum rnum, exhibition.* from 
+		(select exhibition.* from book, exhibition where book.ex_num = exhibition.ex_num and book.mem_id=#{mem_id} order by book.bo_num desc) exhibition)
+		where rnum >= 1 and rnum <= 5
+		]]>
+	</select>
+	
+	<select id="booklist_pay_recent" parameterType="String" resultType="pay">
+		<![CDATA[
+		select pay_num,mem_id,ex_num,bo_price,pay_payment,pay_date,pay_canceldate,bo_num from (select rownum rnum, pay.* from 
+		(select pay.* from book, pay where book.bo_num = pay.bo_num and pay.mem_id=#{mem_id} order by book.bo_num desc) pay)
+		where rnum >= 1 and rnum <= 5
+		]]>
+	</select>
+	
+	<select id="bookCount" parameterType="String" resultType="int">
+		select count(*) from book where mem_id = #{mem_id}
+	</select>
+	
+	<update id="delReview_state" parameterType="int">
+		update book set bo_state = 5 where bo_num = #{bo_num}
+	</update>
+	
+	<update id="updateEx_total_count" parameterType="book">
+		update exhibition set ex_total_count = ex_total_count - #{bo_count}
+		where ex_num = #{ex_num}
+	</update>	
+</mapper>

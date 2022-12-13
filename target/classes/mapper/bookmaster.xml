@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="membook">
+
+	<!-- 예약 총 갯수 -->
+	<select id="count" parameterType="book" resultType="int">
+		select
+		count(*) from book
+	</select>
+
+	<!-- 예약 목록 -->
+	<select id="booklist" parameterType="int" resultType="book">
+
+ <![CDATA[
+	  select * from (select rownum rnum, book.* from (
+	  select * from book order by bo_num desc) book )
+	  where rnum >= ((#{page}-1) *5 + 1) and rnum <= (#{page} *5)
+	  ]]>
+	</select>
+
+	<!-- 예약 상세 -->
+
+	<select id="detail" parameterType="int" resultType="book">
+		select * from
+		book where bo_num=#{bo_num}
+	</select>
+
+</mapper>

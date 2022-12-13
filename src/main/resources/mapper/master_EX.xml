@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+ <mapper namespace="masterex">
+ 
+ <insert id="insertExhibition" parameterType="exhibition">
+		insert into
+		exhibition values
+		(seq_ex_num.nextval,#{ex_name},#{ex_loc},#{ex_start}, #{ex_start}+4,'y',5,#{ex_con_img},#{ex_poster},0)
+	</insert>
+
+	<!-- 전시 총 갯수 -->
+
+	<select id="count" resultType="int">
+		select count(*) from exhibition
+	</select>
+
+	<!-- 전시 목록 -->
+	<select id="exlist" resultType="exhibition" parameterType="int">
+	<![CDATA[
+	   select * from (select rownum rnum, exhibition.*from (
+	   select * from exhibition order by ex_num desc) exhibition )
+	   where rnum >= ((#{page}-1) *4 +1) and rnum <= (#{page} * 4)
+	 ]]>
+	</select>
+	<!-- 전시 상세 정보 -->
+	<select id="select" resultType="exhibition" parameterType="int">
+		select * from exhibition where ex_num=#{ex_num}
+
+	</select>
+
+	<!-- 전시 수정 -->
+	<update id="update" parameterType="exhibition">
+		update exhibition set ex_name=#{ex_name}, ex_loc=#{ex_loc}, ex_start=#{ex_start}, ex_end=#{ex_start}+4,ex_end_state='y',ex_ing=5,
+		ex_con_img=#{ex_con_img, jdbcType=VARCHAR}, ex_poster=#{ex_poster, jdbcType=VARCHAR}
+		where ex_num=#{ex_num}
+	</update>
+
+	<!-- 전시 삭제 -->
+	<delete id="delete" parameterType="int">
+
+		delete from exhibition where ex_num=#{ex_num}
+
+	</delete>
+
+ 
+ 
+ 
+ </mapper>

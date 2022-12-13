@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="masterns">
+
+	<!-- 관리자 로그인 인증 -->
+	<select id="login" parameterType="master" resultType="master">
+		select * from master where master_id=#{master_id} and
+		master_passwd=#{master_passwd}
+	</select>
+
+	<!-- 문의 총 갯수 -->	
+	<select id="count1"  resultType="int">
+		select count(*) from qna where qna_seq = 1
+	</select>
+
+	<!-- 문의 목록 -->
+	<select id="qnalist" resultType="qna" parameterType="int">
+	 <![CDATA[
+	  select * from (select rownum rnum, qna.* from (
+	  select * from qna where qna_seq = 1 order by qna_num desc) qna )
+	  where rnum >= ((#{page}-1) *5 + 1) and rnum <= (#{page} *5)
+	  ]]>
+	</select>
+	
+	<!-- 문의글 정보 -->
+	<select id="qna" parameterType="int" resultType="qna">
+	select * from qna where qna_num=#{qna_num}
+	</select>
+	
+	<!--문의 글 답변 -->
+   <insert id="insert" parameterType="qna">
+   insert into qna values (seq_qna_num.nextval ,'master',#{qna_title},#{qna_content},sysdate,#{qna_num},2,'y')
+   </insert>
+   
+   <!-- 답글 레벨 증가 -->
+   <update id="update" parameterType="qna">
+   update qna set qna_seq= qna_seq+1
+   where qna_ref=#{qna_ref} and qna_seq >#{qna_seq}
+   </update>
+   
+   <!-- 답변 상태 변경 -->
+   <update id="state_update"  parameterType="int">
+		update qna set qna_state='y' where qna_num=#{qna_num}
+   </update>
+
+	<select id="replyPrint" parameterType="int" resultType="qna">
+		select * from qna where qna_ref = #{qna_num} and qna_seq = 2
+	</select>
+   
+   <insert id="insertExhibition" parameterType="exhibition">
+		insert into exhibition values
+		(seq_ex_num.nextval,#{ex_name},#{ex_loc},#{ex_start},#{ex_end},#{ex_end_state},#{ex_ing},#{ex_con_img},#{ex_poster},0)
+	</insert>
+	
+<!-- 전시 총 갯수 -->
+
+	<select id="count" resultType="int">
+		select count(*) from exhibition
+	</select>
+	
+	<!-- 전시 목록 -->
+	<select id="exlist" resultType="exhibition" parameterType="int">
+	<![CDATA[
+	   select * from (select rownum rnum, exhibition.*from (
+	   select * from exhibition order by ex_num desc) exhibition )
+	   where rnum >= ((#{page}-1) *4 +1) and rnum <= (#{page} * 4)
+	 ]]>
+	</select>
+	<!-- 전시 수정 -->
+
+</mapper>
+
+
+

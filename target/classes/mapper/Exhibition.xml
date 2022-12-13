@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="exhibitionns">
+	
+	<select id="detail" parameterType="int" resultType="exhibition">
+		select * from exhibition where ex_num = #{ex_num}
+	</select>
+	
+	<select id="count" resultType="int" parameterType="String">
+		select count(*) from exhibition where ex_end_state = #{ex_end_state}
+	</select>
+	
+	<select id="pagelist" parameterType="map" resultType="exhibition">
+		<![CDATA[
+			select * from (select rownum rnum, exhibition.* from 
+			(select * from exhibition where ex_end_state = #{ex_end_state} order by ex_num desc) exhibition)
+			where rnum >= ((#{page}-1) * 4 + 1) and rnum <= (#{page} * 4)
+		]]>
+	</select>
+	
+	<select id="getName" parameterType="int" resultType="String">
+		select ex_name from exhibition where ex_num = #{ex_num}
+	</select>
+	
+	<select id="searchExhibition" parameterType="String" resultType="exhibition">
+		select * from exhibition where ex_name like '%'||#{search}||'%'
+	</select>
+	
+	<!--[추천 전시]-->
+	<select id="exhibition_bestList" resultType="exhibition">
+		select * from  (select rownum rnum, exhibition.* from ( 
+		select * from exhibition where ex_end_state = 'y' order by ex_total_count desc) exhibition )
+		where rnum &lt;= 3 	
+	</select>
+</mapper>

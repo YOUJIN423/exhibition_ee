@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="boardns">
+
+	<!-- 글작성 등록 -->
+	<insert id="insert" parameterType="board">
+		insert into board
+		values
+		(board_num_seq.nextval, #{board_title},sysdate,
+		#{board_content},
+		#{board_name})
+	</insert>
+
+	<!-- 글 데이터 총수 -->
+	<select id="count" resultType="int">
+		select count(*) from board
+	</select>
+
+	<!-- 글작성 목록 -->
+	<select id="list" parameterType="int" resultType="board">
+ <![CDATA[
+	  select * from (select rownum rnum, board.* from (
+	  select * from board order by board_num desc) board )
+	  where rnum >= ((#{page}-1) * 5 + 1) and rnum <= (#{page} * 5)
+	  ]]>
+	</select>
+
+	<!-- 상세 정보 -->
+	<select id="content" parameterType="int" resultType="board">
+		select *
+		from board where board_num = #{board_num}
+	</select>
+
+	<!-- 글 수정 -->
+	<update id="update" parameterType="board">
+		update board set board_title=#{board_title},board_content=#{board_content}
+		where board_num=#{board_num}
+	</update>
+
+	<!-- 글 삭제 -->
+	<delete id="delete" parameterType="int">
+		delete from board where board_num = #{board_num}
+	</delete>
+
+</mapper>

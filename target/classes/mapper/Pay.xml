@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="payns">
+
+	<!-- 결제 완료 시 결제 정보 저장 -->
+	<insert id="pay_insert" parameterType="pay">
+		insert into pay values(#{pay_num}, #{mem_id}, #{ex_num}, #{bo_price,jdbcType=INTEGER},
+		#{pay_payment}, #{pay_date}, #{pay_canceldate,jdbcType=DATE}, #{bo_num})
+	</insert>
+	
+	<!-- 가장 마지막에 등록한 결제 정보 검색 (max 사용) -->
+	<select id="pay_select_maxnum" resultType="pay">
+		select * from pay where pay_num = (select max(pay_num) from pay)
+	</select>
+	
+	<!-- 결제 완료 시 예약 가능 인원 수정 : 1일 경우 (10:00 ~ 12:00)-->
+	<update id="timecount_select1" parameterType="book">
+		update book_now set bo_time_count1 = bo_time_count1-#{bo_count}
+		where ex_num = #{ex_num} and bo_date = to_date(#{bo_date},'YYYY-MM-DD HH24:MI:SS')
+	</update>
+	
+	<!-- 결제 완료 시 예약 가능 인원 수정 : 2일 경우 (12:00 ~ 14:00)-->
+	<update id="timecount_select2" parameterType="book">
+		update book_now set bo_time_count2 = bo_time_count2-#{bo_count}
+		where ex_num = #{ex_num} and bo_date = to_date(#{bo_date},'YYYY-MM-DD HH24:MI:SS')
+	</update>
+
+	<!-- 결제 완료 시 예약 가능 인원 수정 : 3일 경우 (14:00 ~ 16:00)-->
+	<update id="timecount_select3" parameterType="book">
+		update book_now set bo_time_count3 = bo_time_count3-#{bo_count}
+		where ex_num = #{ex_num} and bo_date = to_date(#{bo_date},'YYYY-MM-DD HH24:MI:SS')
+	</update>
+	
+	<!-- 결제 완료 시 예약 가능 인원 수정 : 4일 경우 (16:00 ~ 18:00)-->
+	<update id="timecount_select4" parameterType="book">
+		update book_now set bo_time_count4 = bo_time_count4-#{bo_count}
+		where ex_num = #{ex_num} and bo_date = to_date(#{bo_date},'YYYY-MM-DD HH24:MI:SS')
+	</update>
+	
+	<!-- 결제 완료 시 전시 테이블 예약 총 인원 update -->
+	<update id="ex_total_count" parameterType="book">
+		update exhibition set ex_total_count = ex_total_count + #{bo_count}
+		where ex_num = #{ex_num}
+	</update>
+	
+	<!-- 결제 실패 시 예약 테이블 삭제 -->
+	<delete id="book_delete" parameterType="pay">
+		delete from book where bo_num = #{bo_num}
+	</delete>
+	
+	<!-- 0원 결제 시 결제 정보 등록 -->
+	<insert id="pay_0insert" parameterType="book">
+	 	insert into pay(pay_num, mem_id, ex_num, bo_price, pay_payment, pay_date, bo_num)
+       	values(#{pay_num}, #{mem_id}, #{ex_num}, 0, '-', sysdate, #{bo_num})
+	</insert>
+	
+	<!-- 0원 결제 실패 시 예약 테이블 삭제 -->
+	<delete id="book_0delete" parameterType="book">
+		delete from book where bo_num = #{bo_num}	
+	</delete>
+
+    
+</mapper>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<typeAliases>
+		<typeAlias alias="book"  type="project.Model.Book" />
+		<typeAlias alias="book_now"  type="project.Model.Book_now" />
+		<typeAlias alias="exhibition"  type="project.Model.Exhibition" />
+		<typeAlias alias="mylike"  type="project.Model.MyLike" />
+		<typeAlias alias="master"  type="project.Model.Master" />
+		<typeAlias alias="member"  type="project.Model.Member" />
+		<typeAlias alias="pay"  type="project.Model.Pay" />
+		<typeAlias alias="qna"  type="project.Model.Qna" />
+		<typeAlias alias="review"  type="project.Model.Review" />
+		<typeAlias alias="board"  type="project.Model.Board"/>
+	</typeAliases>
+</configuration>
