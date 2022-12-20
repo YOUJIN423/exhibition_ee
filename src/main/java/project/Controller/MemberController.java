@@ -138,7 +138,7 @@ public class MemberController {
 			String hostSMTPpwd = ""; // 비밀번호 입력해야함
 
 			// 보내는 사람 EMail, 제목, 내용
-			String fromEmail = "alsgkqhfdl@naver.com";
+			String fromEmail = "";
 			String fromName = "관리자";
 			String subject = "비밀번호 찾기";
 
